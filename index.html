@@ -1,0 +1,451 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Growthmak — Lead Review</title>
+<style>
+  :root{
+    --bg:#f1f2f6;
+    --card:#ffffff;
+    --ink:#0f172a;
+    --muted:#64748b;
+    --line:#e5e7eb;
+    --brand:#2563eb;
+    --green:#16a34a;
+    --green-d:#15803d;
+    --red:#e11d48;
+    --red-d:#be123c;
+    --shadow:0 10px 30px rgba(15,23,42,.10),0 2px 8px rgba(15,23,42,.06);
+    color-scheme:light;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:linear-gradient(180deg,#eef2ff 0%,var(--bg) 40%);
+    color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+    display:flex;
+    flex-direction:column;
+    min-height:100dvh;
+  }
+  header{
+    display:flex;align-items:center;justify-content:space-between;
+    gap:12px;
+    padding:14px clamp(16px,4vw,28px);
+    padding-top:calc(14px + env(safe-area-inset-top,0px));
+    background:rgba(255,255,255,.75);
+    backdrop-filter:saturate(180%) blur(10px);
+    border-bottom:1px solid var(--line);
+    position:sticky;top:0;z-index:10;
+  }
+  .brand{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:-.02em}
+  .brand .dot{width:26px;height:26px;border-radius:8px;background:linear-gradient(135deg,#2563eb,#7c3aed);display:grid;place-items:center;color:#fff;font-size:14px;font-weight:900}
+  .brand small{display:block;font-weight:600;color:var(--muted);font-size:11px;letter-spacing:0}
+  .counter{
+    font-size:13px;color:var(--muted);font-weight:600;
+    background:#fff;border:1px solid var(--line);border-radius:999px;padding:6px 12px;white-space:nowrap;
+  }
+  .counter b{color:var(--ink)}
+
+  main{flex:1;display:grid;place-items:center;padding:clamp(16px,4vw,40px) 16px;padding-bottom:calc(24px + env(safe-area-inset-bottom,0px))}
+  .stage{width:100%;max-width:620px;position:relative}
+
+  /* Card */
+  .card{
+    background:var(--card);border:1px solid var(--line);border-radius:20px;
+    box-shadow:var(--shadow);overflow:hidden;
+    transition:transform .32s cubic-bezier(.2,.7,.3,1),opacity .32s ease;
+    will-change:transform,opacity;
+  }
+  .card.leaving-right{transform:translateX(120%) rotate(6deg);opacity:0}
+  .card.leaving-left{transform:translateX(-120%) rotate(-6deg);opacity:0}
+  .card.entering{animation:pop .34s cubic-bezier(.2,.8,.3,1)}
+  @keyframes pop{from{transform:scale(.94) translateY(10px);opacity:0}to{transform:none;opacity:1}}
+
+  .card-top{display:flex;align-items:center;gap:12px;padding:18px 18px 8px}
+  .avatar{
+    width:52px;height:52px;border-radius:50%;flex:0 0 auto;display:grid;place-items:center;
+    color:#fff;font-weight:800;font-size:20px;box-shadow:inset 0 0 0 2px rgba(255,255,255,.5)
+  }
+  .who{min-width:0;flex:1}
+  .who .name{font-weight:800;font-size:16px;line-height:1.2;display:flex;align-items:center;gap:6px}
+  .who .sub{color:var(--muted);font-size:12.5px;margin-top:2px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+  .pill{font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;text-transform:capitalize}
+  .pill.src{color:#fff}
+
+  .post{padding:6px 18px 4px;cursor:pointer}
+  .post .text{font-size:15.5px;line-height:1.5;white-space:pre-wrap;word-break:break-word}
+  .post .text.clamp{display:-webkit-box;-webkit-line-clamp:12;-webkit-box-orient:vertical;overflow:hidden}
+  .readmore{margin:6px 0 0;color:var(--brand);font-weight:700;font-size:13px;background:none;border:0;padding:0;cursor:pointer}
+
+  .open-hint{
+    display:inline-flex;align-items:center;gap:6px;margin:12px 18px 4px;
+    color:var(--brand);font-weight:700;font-size:13px;text-decoration:none
+  }
+  .open-hint svg{width:15px;height:15px}
+
+  .engage{display:flex;align-items:center;gap:18px;padding:12px 18px 16px;border-top:1px solid var(--line);margin-top:10px;color:var(--muted);font-size:13px;font-weight:600}
+  .engage span{display:inline-flex;align-items:center;gap:6px}
+  .engage svg{width:16px;height:16px;opacity:.8}
+
+  /* Actions */
+  .actions{display:flex;gap:14px;justify-content:center;margin-top:22px}
+  .btn{
+    border:0;cursor:pointer;border-radius:16px;font-weight:800;font-size:15px;
+    padding:16px 22px;display:inline-flex;align-items:center;justify-content:center;gap:10px;
+    box-shadow:0 6px 16px rgba(15,23,42,.10);transition:transform .12s ease,filter .12s ease;flex:1;max-width:230px
+  }
+  .btn:active{transform:translateY(1px) scale(.99)}
+  .btn:disabled{opacity:.5;cursor:default}
+  .btn svg{width:20px;height:20px}
+  .btn.skip{background:#fff;color:var(--red);border:1.5px solid #fecdd3}
+  .btn.skip:hover{filter:brightness(.99);border-color:var(--red)}
+  .btn.done{background:linear-gradient(135deg,var(--green),var(--green-d));color:#fff}
+  .btn.done:hover{filter:brightness(1.05)}
+
+  .hintbar{text-align:center;color:var(--muted);font-size:12px;margin-top:14px}
+  kbd{background:#fff;border:1px solid var(--line);border-bottom-width:2px;border-radius:6px;padding:1px 6px;font-family:inherit;font-size:11px;font-weight:700;color:var(--ink)}
+
+  /* Empty + loading */
+  .placeholder{background:var(--card);border:1px dashed #cbd5e1;border-radius:20px;padding:56px 28px;text-align:center;box-shadow:var(--shadow)}
+  .placeholder .emoji{font-size:44px}
+  .placeholder h2{margin:14px 0 6px;font-size:20px}
+  .placeholder p{margin:0;color:var(--muted);font-size:14px;line-height:1.5}
+  .spinner{width:34px;height:34px;border:3px solid var(--line);border-top-color:var(--brand);border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 12px}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  /* Toast */
+  .toast{
+    position:fixed;left:50%;bottom:calc(22px + env(safe-area-inset-bottom,0px));transform:translateX(-50%) translateY(20px);
+    background:var(--ink);color:#fff;padding:12px 18px;border-radius:12px;font-weight:700;font-size:14px;
+    box-shadow:var(--shadow);opacity:0;pointer-events:none;transition:all .28s ease;z-index:50;display:flex;align-items:center;gap:8px
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  .toast.err{background:var(--red-d)}
+
+  .demo-flag{position:fixed;left:12px;bottom:12px;font-size:11px;font-weight:700;color:#92400e;background:#fef3c7;border:1px solid #fde68a;border-radius:8px;padding:5px 9px;z-index:40}
+  [hidden]{display:none!important}
+</style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <span class="dot">G</span>
+      <div>Growthmak
+        <small>Shopify lead review</small>
+      </div>
+    </div>
+    <div class="counter" id="counter">—</div>
+  </header>
+
+  <main>
+    <div class="stage" id="stage">
+      <!-- loading -->
+      <div class="placeholder" id="loading">
+        <div class="spinner"></div>
+        <p>Loading leads…</p>
+      </div>
+    </div>
+  </main>
+
+  <div class="toast" id="toast"></div>
+  <div class="demo-flag" id="demoFlag" hidden>Demo data — API not connected</div>
+
+<script>
+(function(){
+  "use strict";
+
+  // Same-origin API. On Vercel the functions live at /api/leads.
+  var API = "/api/leads";
+
+  var queue = [];        // pending leads
+  var current = null;    // lead on screen
+  var processed = 0;     // count actioned this session
+  var demoMode = false;
+  var busy = false;
+
+  var stage = document.getElementById("stage");
+  var counterEl = document.getElementById("counter");
+  var toastEl = document.getElementById("toast");
+  var demoFlag = document.getElementById("demoFlag");
+
+  // ---- source theming -------------------------------------------------
+  var SOURCES = {
+    linkedin:{label:"LinkedIn", color:"#0a66c2"},
+    reddit:{label:"Reddit", color:"#ff4500"},
+    x:{label:"X", color:"#111827"},
+    twitter:{label:"X", color:"#111827"},
+    bluesky:{label:"Bluesky", color:"#1185fe"},
+    default:{label:"Post", color:"#6366f1"}
+  };
+  function srcInfo(s){ return SOURCES[(s||"").toLowerCase()] || SOURCES.default; }
+
+  // Derive a readable handle from a profile / post URL when no name is sent.
+  function handleFromUrl(url, source){
+    if(!url) return srcInfo(source).label + " user";
+    try{
+      var u = new URL(url);
+      var parts = u.pathname.split("/").filter(Boolean);
+      var host = u.hostname.replace(/^www\./,"");
+      if(host.indexOf("linkedin")>-1){
+        var i = parts.indexOf("in"); if(i>-1 && parts[i+1]) return decodeURIComponent(parts[i+1]).replace(/-/g," ");
+        var c = parts.indexOf("company"); if(c>-1 && parts[c+1]) return decodeURIComponent(parts[c+1]).replace(/-/g," ");
+      }
+      if(host.indexOf("reddit")>-1){
+        var r = parts.indexOf("r"); if(r>-1 && parts[r+1]) return "r/"+parts[r+1];
+        var us = parts.indexOf("user"); if(us>-1 && parts[us+1]) return "u/"+parts[us+1];
+      }
+      if(parts.length) return "@"+parts[0].replace(/^@/,"");
+      return host;
+    }catch(e){ return srcInfo(source).label + " user"; }
+  }
+
+  function initials(name){
+    var p = (name||"").trim().split(/\s+/).slice(0,2);
+    return (p.map(function(w){return w[0]||"";}).join("") || "?").toUpperCase();
+  }
+
+  function esc(s){ var d=document.createElement("div"); d.textContent = s==null?"":String(s); return d.innerHTML; }
+  function fmtNum(n){ n=+n||0; return n>=1000 ? (n/1000).toFixed(n%1000?1:0)+"k" : String(n); }
+  function fmtDate(d){
+    if(!d) return "";
+    var t = new Date(d); if(isNaN(t)) return String(d);
+    var diff = (Date.now()-t)/1000;
+    if(diff<3600) return Math.max(1,Math.round(diff/60))+"m ago";
+    if(diff<86400) return Math.round(diff/3600)+"h ago";
+    if(diff<86400*7) return Math.round(diff/86400)+"d ago";
+    return t.toLocaleDateString();
+  }
+
+  function toast(msg, isErr){
+    toastEl.textContent = msg;
+    toastEl.className = "toast show" + (isErr?" err":"");
+    clearTimeout(toast._t);
+    toast._t = setTimeout(function(){ toastEl.className = "toast"; }, 2200);
+  }
+
+  function updateCounter(){
+    var remaining = queue.length + (current?1:0);
+    counterEl.innerHTML = "<b>"+remaining+"</b> to review · "+processed+" done";
+  }
+
+  // ---- rendering ------------------------------------------------------
+  function showLoading(){
+    stage.innerHTML = '<div class="placeholder"><div class="spinner"></div><p>Loading leads…</p></div>';
+  }
+  function showEmpty(){
+    current = null;
+    stage.innerHTML =
+      '<div class="placeholder">'+
+        '<div class="emoji">🎉</div>'+
+        '<h2>All caught up</h2>'+
+        '<p>No more leads to review right now.<br>New Shopify projects will appear here automatically.</p>'+
+      '</div>';
+    updateCounter();
+  }
+
+  function renderCard(lead){
+    current = lead;
+    var info = srcInfo(lead.source);
+    var name = lead.authorName || handleFromUrl(lead.authorUrl || lead.postUrl, lead.source);
+    var title = lead.authorTitle || "";
+    var link = lead.postUrl || lead.authorUrl || "#";
+    var avatarHtml;
+    if(lead.authorAvatar){
+      avatarHtml = '<img class="avatar" src="'+esc(lead.authorAvatar)+'" alt="" style="object-fit:cover" onerror="this.replaceWith(Object.assign(document.createElement(\'div\'),{className:\'avatar\',style:\'background:'+info.color+'\',textContent:\''+esc(initials(name))+'\'}))">';
+    }else{
+      avatarHtml = '<div class="avatar" style="background:'+info.color+'">'+esc(initials(name))+'</div>';
+    }
+
+    var text = lead.text || "(no text)";
+    var isLong = text.length > 520;
+
+    var html =
+      '<div class="card entering" id="card">'+
+        '<div class="card-top">'+
+          avatarHtml+
+          '<div class="who">'+
+            '<div class="name">'+esc(name)+'</div>'+
+            '<div class="sub">'+
+              '<span class="pill src" style="background:'+info.color+'">'+info.label+'</span>'+
+              (title?'<span>'+esc(title)+'</span>':'')+
+              (lead.datePosted?'<span>· '+esc(fmtDate(lead.datePosted))+'</span>':'')+
+            '</div>'+
+          '</div>'+
+        '</div>'+
+        '<div class="post" id="postArea">'+
+          '<div class="text '+(isLong?'clamp':'')+'" id="postText">'+esc(text)+'</div>'+
+          (isLong?'<button class="readmore" id="readmore" type="button">Read more</button>':'')+
+          '<a class="open-hint" href="'+esc(link)+'" target="_blank" rel="noopener">'+
+            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>'+
+            'Open original post</a>'+
+        '</div>'+
+        '<div class="engage">'+
+          '<span title="Likes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>'+fmtNum(lead.likes)+'</span>'+
+          '<span title="Comments"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>'+fmtNum(lead.comments)+'</span>'+
+        '</div>'+
+      '</div>'+
+      '<div class="actions">'+
+        '<button class="btn skip" id="btnSkip" type="button">'+
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Skip</button>'+
+        '<button class="btn done" id="btnDone" type="button">'+
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Messaged</button>'+
+      '</div>'+
+      '<div class="hintbar">Tap the card to open the post · <kbd>←</kbd> skip · <kbd>→</kbd> messaged</div>';
+
+    stage.innerHTML = html;
+
+    // wire up
+    var postArea = document.getElementById("postArea");
+    postArea.addEventListener("click", function(e){
+      if(e.target.id === "readmore") return; // handled below
+      window.open(link, "_blank", "noopener");
+    });
+    var rm = document.getElementById("readmore");
+    if(rm){
+      rm.addEventListener("click", function(e){
+        e.stopPropagation();
+        var t = document.getElementById("postText");
+        t.classList.toggle("clamp");
+        rm.textContent = t.classList.contains("clamp") ? "Read more" : "Show less";
+      });
+    }
+    document.getElementById("btnSkip").addEventListener("click", function(){ act("skipped","left"); });
+    document.getElementById("btnDone").addEventListener("click", function(){ act("messaged","right"); });
+
+    updateCounter();
+  }
+
+  function showNext(){
+    if(queue.length){ renderCard(queue.shift()); }
+    else{ showEmpty(); poll(true); }
+  }
+
+  // ---- actions --------------------------------------------------------
+  function act(status, dir){
+    if(busy || !current) return;
+    busy = true;
+    var lead = current;
+    var cardEl = document.getElementById("card");
+    if(cardEl) cardEl.className = "card leaving-" + dir;
+    processed++;
+    toast(status==="messaged" ? "✓ Marked as messaged" : "Skipped");
+
+    // Optimistic UI: advance immediately, persist in the background.
+    setTimeout(function(){
+      busy = false;
+      showNext();
+    }, 300);
+
+    if(!demoMode){
+      fetch(API, {
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({ action:"update", id: lead.id, status: status })
+      }).catch(function(){ /* keep local state; will reconcile on next poll */ });
+    }
+  }
+
+  // ---- data -----------------------------------------------------------
+  function normalize(row){
+    return {
+      id: row.id || row.postUrl || (Date.now()+"-"+Math.random().toString(36).slice(2)),
+      source: row.source || "",
+      authorUrl: row.authorUrl || "",
+      authorName: row.authorName || "",
+      authorTitle: row.authorTitle || "",
+      authorAvatar: row.authorAvatar || "",
+      text: row.text || "",
+      postUrl: row.postUrl || row.authorUrl || "",
+      likes: row.likes || 0,
+      comments: row.comments || 0,
+      datePosted: row.datePosted || row.createdAt || ""
+    };
+  }
+
+  function mergeIntoQueue(rows){
+    var seen = {};
+    if(current) seen[current.id] = 1;
+    queue.forEach(function(l){ seen[l.id]=1; });
+    var added = 0;
+    rows.forEach(function(r){
+      var l = normalize(r);
+      if(!seen[l.id]){ queue.push(l); seen[l.id]=1; added++; }
+    });
+    return added;
+  }
+
+  function poll(silent){
+    if(demoMode) return;
+    fetch(API + "?status=new", {headers:{"Accept":"application/json"}})
+      .then(function(r){ if(!r.ok) throw new Error("http "+r.status); return r.json(); })
+      .then(function(data){
+        var rows = Array.isArray(data) ? data : (data.leads || []);
+        var added = mergeIntoQueue(rows);
+        if(!current && queue.length){ showNext_fromIdle(); }
+        else{ updateCounter(); }
+        if(added && silent) toast(added+" new lead"+(added>1?"s":"")+" arrived");
+      })
+      .catch(function(err){
+        if(!silent && !current && !queue.length){ startDemo(); }
+      });
+  }
+
+  function showNext_fromIdle(){
+    // when we were on the empty screen and new leads arrive
+    if(queue.length) renderCard(queue.shift());
+  }
+
+  // ---- demo fallback (local testing without the API) ------------------
+  var DEMO = [
+    { source:"linkedin",
+      authorUrl:"https://www.linkedin.com/in/sarah-mitchell",
+      authorName:"Sarah Mitchell", authorTitle:"Founder, Bloom Skincare",
+      text:"We're launching our DTC skincare brand next month and need to get our Shopify store built properly. Looking for a developer or agency who's done beauty/cosmetics stores before — custom theme, subscriptions, and a clean checkout. Any recommendations? 🙏",
+      postUrl:"https://www.linkedin.com/feed/", likes:47, comments:23, datePosted:new Date(Date.now()-3600e3*4).toISOString() },
+    { source:"reddit",
+      authorUrl:"https://www.reddit.com/user/ecom_dan",
+      text:"Migrating from WooCommerce to Shopify Plus — 4,000 SKUs\n\nOur store has outgrown WooCommerce. Constant downtime during sales. Seriously considering Shopify Plus but nervous about the migration (SEO, redirects, historical orders). Has anyone hired an agency for this? Roughly what did it cost and how long?",
+      postUrl:"https://www.reddit.com/r/shopify/", likes:112, comments:64, datePosted:new Date(Date.now()-3600e3*20).toISOString() },
+    { source:"x",
+      authorUrl:"https://x.com/mariacraftco",
+      authorName:"Maria — Craft & Co", authorTitle:"@mariacraftco",
+      text:"our shopify store speed is killing conversions. LCP is like 5s on mobile 😩 need someone who actually knows how to fix core web vitals on a shopify theme. paying well. DMs open.",
+      postUrl:"https://x.com/", likes:8, comments:15, datePosted:new Date(Date.now()-3600e3*2).toISOString() }
+  ];
+  function startDemo(){
+    demoMode = true;
+    demoFlag.hidden = false;
+    queue = DEMO.map(normalize);
+    showNext();
+  }
+
+  // ---- keyboard -------------------------------------------------------
+  document.addEventListener("keydown", function(e){
+    if(!current) return;
+    if(e.key === "ArrowLeft") act("skipped","left");
+    else if(e.key === "ArrowRight") act("messaged","right");
+  });
+
+  // ---- boot -----------------------------------------------------------
+  showLoading();
+  fetch(API + "?status=new", {headers:{"Accept":"application/json"}})
+    .then(function(r){ if(!r.ok) throw new Error("http "+r.status); return r.json(); })
+    .then(function(data){
+      var rows = Array.isArray(data) ? data : (data.leads || []);
+      queue = rows.map(normalize);
+      showNext();
+      setInterval(function(){ poll(true); }, 15000); // live updates every 15s
+    })
+    .catch(function(){
+      // No API yet (opened as a plain file, or before deploy) → demo data
+      startDemo();
+    });
+
+})();
+</script>
+</body>
+</html>

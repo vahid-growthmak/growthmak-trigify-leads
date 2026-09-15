@@ -1,0 +1,13 @@
+{
+  "name": "growthmak-leads",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Growthmak Shopify lead-review app (Vercel).",
+  "scripts": {
+    "dev": "vercel dev"
+  },
+  "dependencies": {
+    "@vercel/kv": "^3.0.0"
+  }
+}
